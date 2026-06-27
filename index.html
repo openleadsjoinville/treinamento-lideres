@@ -401,7 +401,6 @@
           <div class="scan">Aponte a câmera do celular</div>
         </div>
         <div class="steps">Escaneie o QR Code e responda às próximas perguntas</div>
-        <div class="url" id="qr-url">&nbsp;</div>
       </div>
       <div class="brand"><span class="mark"></span><span class="sub">Treinamento de Líderes</span></div>
     </section>
@@ -735,7 +734,6 @@
      PARTICIPANT URL + QR CODES
   ==================================================================== */
   var PART_URL = new URL('participar.html', location.href).href;
-  document.getElementById('qr-url').textContent = PART_URL;
   function makeQR(text){ var qr = qrcode(0, 'M'); qr.addData(text); qr.make(); return qr.createDataURL(8, 4); }
   function setQR(img){ if(typeof qrcode !== 'function' || !img) return; try{ img.src = makeQR(PART_URL); }catch(e){ console.warn('QR falhou', e); } }
   setQR(document.getElementById('qr-main'));
