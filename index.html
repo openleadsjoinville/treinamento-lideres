@@ -303,6 +303,27 @@
   .dock-btn{ background:none; border:none; color:#fff; cursor:pointer; font-size:17px; opacity:.85; padding:2px 4px; line-height:1; } .dock-btn:hover{ opacity:1; }
   #helphint{ position:fixed; left:18px; bottom:18px; z-index:50; font-family:var(--body); font-weight:700; font-size:12px; letter-spacing:.03em; color:rgba(255,255,255,.7); background:rgba(18,18,20,.45); padding:6px 12px; border-radius:20px; border:1px solid rgba(255,255,255,.12); transition:opacity .5s ease; }
   body.idle .nav-arrow, body.idle #dock, body.idle #helphint{ opacity:0; pointer-events:none; }
+
+  /* ---------- Modo exportação / PDF (?export) ---------- */
+  @page{ size:1280px 720px; margin:0; }
+  body.exporting{ overflow:auto; background:#8a8f99; }
+  body.exporting #viewport{ position:static; inset:auto; }
+  body.exporting #stage{ position:static; transform:none !important; width:1280px; height:auto; margin:0 auto; overflow:visible; box-shadow:none; }
+  body.exporting .slide{ position:relative; inset:auto; opacity:1 !important; visibility:visible !important; transform:none !important; width:1280px; height:720px; display:block; overflow:hidden; page-break-after:always; break-after:page; }
+  body.exporting .slide:last-of-type{ page-break-after:auto; break-after:auto; }
+  body.exporting .anim{ opacity:1 !important; transform:none !important; transition:none !important; }
+  body.exporting .nav-arrow, body.exporting #dock, body.exporting #helphint{ display:none !important; }
+  body.exporting .s-ice .chip{ opacity:1 !important; transform:rotate(var(--r,0deg)) !important; transition:none !important; }
+  body.exporting .s-ice .head-top, body.exporting .s-ice .head-bot{ opacity:1 !important; }
+  body.exporting .s-ice .ice-hint{ display:none !important; }
+  #exportbar{ position:fixed; left:50%; top:14px; transform:translateX(-50%); z-index:200; display:none; align-items:center; gap:14px;
+    background:#1b1d24; color:#fff; border:1px solid rgba(255,255,255,.16); border-radius:30px; padding:10px 16px 10px 20px;
+    font-family:var(--body); font-weight:700; font-size:13px; box-shadow:0 14px 34px rgba(0,0,0,.4); }
+  body.exporting #exportbar{ display:flex; }
+  #exportbar b{ font-weight:800; }
+  #exportbar button{ border:none; border-radius:20px; padding:9px 18px; font-family:var(--disp); font-weight:800; font-size:13px; text-transform:uppercase; letter-spacing:.04em; background:var(--blue); color:#fff; cursor:pointer; }
+  @media screen{ body.exporting{ padding:78px 0 40px; } body.exporting .slide{ margin:0 auto 16px; box-shadow:0 12px 30px rgba(0,0,0,.35); } }
+  @media print{ #exportbar{ display:none !important; } body.exporting{ background:#fff; padding:0; } body.exporting .slide{ margin:0; box-shadow:none; } }
 </style>
 </head>
 <body>
@@ -909,6 +930,25 @@
 
   update();
   applyHash();
+
+  /* ---------- Modo exportação / PDF ---------- */
+  if(/[?&]export\b/.test(location.search)){
+    document.body.classList.add('exporting');
+    if(typeof placeIce==='function'){ placeIce(); }
+    // carrega as nuvens de todas as perguntas (respostas atuais do Supabase)
+    [].slice.call(document.querySelectorAll('.s-q')).forEach(function(s){
+      var q = parseInt(s.getAttribute('data-q'),10); if(q) loadResponses(q);
+    });
+    // barra com instruções + botão de imprimir
+    var bar = document.createElement('div');
+    bar.id = 'exportbar';
+    bar.innerHTML = '<span><b>Exportar PDF:</b> aguarde as nuvens carregarem, depois clique e escolha <b>Salvar como PDF</b> · paisagem · margens nenhuma · <b>marque "Gráficos de fundo"</b></span>';
+    var btn = document.createElement('button');
+    btn.textContent = 'Salvar PDF';
+    btn.addEventListener('click', function(){ window.print(); });
+    bar.appendChild(btn);
+    document.body.appendChild(bar);
+  }
 })();
 </script>
 </body>
