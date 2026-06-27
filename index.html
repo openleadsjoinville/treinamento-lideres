@@ -67,7 +67,7 @@
 
   /* ============ SLIDE 2 — ICEBERG ============ */
   .s-ice{ background:var(--cream); color:var(--dark); }
-  .s-ice .ice-title{ position:absolute; left:64px; top:46px; z-index:4; }
+  .s-ice .ice-title{ position:absolute; left:0; right:0; top:26px; text-align:center; z-index:4; }
   .s-ice .ice-title .kicker{ color:var(--blue); font-size:13px; letter-spacing:.24em; }
   .s-ice .ice-title .title{ color:var(--dark); font-size:34px; margin-top:2px; }
   .berg-svg{ position:absolute; inset:0; width:1280px; height:720px; z-index:1; }
@@ -82,16 +82,20 @@
   .s-ice.show-top .head-top{ opacity:1; transform:translateY(-4px) scale(1.04); }
   .s-ice.show-bot .head-bot{ opacity:1; transform:translateY(4px) scale(1.04); }
   .s-ice.show-top .head-bot, .s-ice.show-bot .head-top{ opacity:.16; }
-  .chip{ position:absolute; z-index:3; pointer-events:none; font-family:var(--body); font-weight:800; font-size:18px; line-height:1.12; padding:8px 16px; border-radius:30px; max-width:290px; opacity:0; transform:translateY(12px) scale(.96); transition:opacity .45s ease, transform .45s ease; }
-  .chip.v{ background:rgba(255,255,255,.92); color:var(--dark); border:1.5px solid rgba(83,115,255,.55); box-shadow:0 8px 22px rgba(40,60,140,.12); }
-  .chip.i{ background:rgba(33,33,33,.86); color:var(--cream-hi); border:1.5px solid rgba(255,255,255,.18); box-shadow:0 10px 26px rgba(0,0,0,.32); }
-  .col-left .chip{ left:60px; text-align:left; }
-  .col-right .chip{ right:60px; text-align:right; }
-  .s-ice.show-top .grp-top .chip{ opacity:1; transform:none; }
-  .s-ice.show-bot .grp-bot .chip{ opacity:1; transform:none; }
-  .chip:nth-child(1){ transition-delay:.02s; } .chip:nth-child(2){ transition-delay:.07s; } .chip:nth-child(3){ transition-delay:.12s; } .chip:nth-child(4){ transition-delay:.17s; } .chip:nth-child(5){ transition-delay:.22s; }
-  .s-ice.show-top .grp-top{ filter:drop-shadow(0 0 16px rgba(255,255,255,.95)); }
-  .s-ice.show-bot .grp-bot{ filter:drop-shadow(0 0 22px rgba(83,115,255,.85)); }
+  .chip{ position:absolute; z-index:3; pointer-events:none; font-family:var(--body); font-weight:800; font-size:22px; line-height:1.08; padding:10px 22px; border-radius:40px; white-space:nowrap; text-align:center;
+    opacity:0; transform:translateY(16px) scale(.78); transition:opacity .5s ease, transform .6s cubic-bezier(.16,1.32,.4,1); }
+  .chip::before{ content:""; display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:9px; vertical-align:middle; background:var(--blue); }
+  .chip.v{ color:var(--dark); background:linear-gradient(135deg, rgba(255,255,255,.97), rgba(226,235,255,.80)); border:1.6px solid rgba(83,115,255,.45);
+    box-shadow:0 14px 32px rgba(40,60,140,.22), inset 0 1px 0 rgba(255,255,255,.95); -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px); }
+  .chip.i{ color:#eef3ff; background:linear-gradient(135deg, rgba(17,23,55,.94), rgba(40,53,122,.84)); border:1.6px solid rgba(120,150,255,.55);
+    box-shadow:0 16px 36px rgba(0,8,42,.5), 0 0 24px rgba(83,115,255,.30), inset 0 1px 0 rgba(255,255,255,.14); -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px); }
+  .chip.i::before{ background:#8ea6ff; box-shadow:0 0 9px rgba(140,166,255,.9); }
+  .grp-bot .chip{ transform:translateY(30px) scale(.8); }
+  .col-left .chip{ left:60px; }  .col-right .chip{ right:60px; }   /* fallback caso o JS não posicione */
+  .s-ice.show-top .grp-top .chip{ opacity:1; transform:rotate(var(--r,0deg)) scale(1); }
+  .s-ice.show-bot .grp-bot .chip{ opacity:1; transform:rotate(var(--r,0deg)) scale(1); }
+  .s-ice.show-top .grp-top{ filter:drop-shadow(0 0 18px rgba(255,255,255,.95)); }
+  .s-ice.show-bot .grp-bot{ filter:drop-shadow(0 0 26px rgba(83,115,255,.9)); }
   .ice-hint{ position:absolute; left:50%; top:662px; transform:translateX(-50%); z-index:4; pointer-events:none; text-align:center; font-family:var(--body); font-weight:800; font-size:14px; letter-spacing:.04em; color:var(--dark); opacity:.62; transition:opacity .35s ease; display:flex; align-items:center; gap:10px; }
   .ice-hint .pulse{ display:inline-block; width:9px; height:9px; border-radius:50%; background:var(--blue); animation:pulse 1.6s ease-in-out infinite; }
   @keyframes pulse{ 0%,100%{ transform:scale(.7); opacity:.5; } 50%{ transform:scale(1.25); opacity:1; } }
@@ -362,8 +366,6 @@
         </div>
       </div>
       <div class="ice-hint"><span class="pulse"></span>Passe o mouse acima e abaixo da água</div>
-      <div class="zone zone-top"></div>
-      <div class="zone zone-bot"></div>
       <div class="brand"><span class="mark"></span><span class="sub">Treinamento de Líderes</span></div>
     </section>
 
@@ -712,18 +714,55 @@
     }
   });
 
-  /* ---- iceberg interaction ---- */
+  /* ---- iceberg: reveal por metade (acima/abaixo da água) + layout anti-colisão ---- */
   var icePin=null; var ice=document.querySelector('.s-ice');
+  var ICE_I = slides.indexOf(ice);
+  function setIce(state){ if(!ice) return; ice.classList.toggle('show-top',state==='top'); ice.classList.toggle('show-bot',state==='bot'); }
   if(ice){
-    var zt=ice.querySelector('.zone-top'), zb=ice.querySelector('.zone-bot');
-    function setIce(state){ ice.classList.toggle('show-top',state==='top'); ice.classList.toggle('show-bot',state==='bot'); }
-    zt.addEventListener('pointerenter',function(){ if(!icePin) setIce('top'); });
-    zb.addEventListener('pointerenter',function(){ if(!icePin) setIce('bot'); });
-    zt.addEventListener('pointerleave',function(){ if(!icePin) setIce(null); });
-    zb.addEventListener('pointerleave',function(){ if(!icePin) setIce(null); });
-    zt.addEventListener('click',function(){ icePin=icePin==='top'?null:'top'; setIce(icePin); syncHash(); });
-    zb.addEventListener('click',function(){ icePin=icePin==='bot'?null:'bot'; setIce(icePin); syncHash(); });
+    var WL=0.451; // linha d'água (325/720)
+    function halfAt(e){ var r=ice.getBoundingClientRect(); var y=(e.clientY!=null?e.clientY:0)-r.top; return (y < r.height*WL)?'top':'bot'; }
+    ice.addEventListener('mousemove', function(e){ if(!icePin) setIce(halfAt(e)); });
+    ice.addEventListener('mouseleave', function(){ if(!icePin) setIce(null); });
+    ice.addEventListener('click', function(e){ var h=halfAt(e); if(icePin){ icePin=null; setIce(h); } else { icePin=h; setIce(h); } syncHash(); });
+    ice.addEventListener('touchstart', function(e){ var t=e.touches&&e.touches[0]; if(t){ icePin=halfAt(t); setIce(icePin); } }, {passive:true});
   }
+
+  /* posiciona as palavras espalhadas (sem sobreposição), nas laterais do iceberg */
+  var icePlaced=false;
+  function placeIce(){
+    if(icePlaced || !ice) return;
+    var vis = [].slice.call(ice.querySelectorAll('.grp-top .chip'));
+    var inv = [].slice.call(ice.querySelectorAll('.grp-bot .chip'));
+    if(!vis.length) return;
+    // tamanhos variados (ordem do HTML); frases longas menores p/ caberem em 1 linha
+    var SZ_V=[30,24,28,18,30,23,22,18], SZ_I=[28,22,26,20,24,27,21,25,20];
+    var ROT=[-5,4,-3,3,5,-2,2,-4,6,-6,1];
+    function prep(el,i,sizes){ el.style.fontSize=sizes[i%sizes.length]+'px'; el.style.setProperty('--r',ROT[i%ROT.length]+'deg'); el.style.transitionDelay=(0.05*i)+'s'; }
+    vis.forEach(function(el,i){ prep(el,i,SZ_V); });
+    inv.forEach(function(el,i){ prep(el,i,SZ_I); });
+    function rnd(s){ var x=Math.sin(s*12.9898)*43758.5453; return x-Math.floor(x); }
+    // empilha verticalmente dentro de uma faixa (nunca sobrepõe), com leve jitter horizontal
+    function stack(list, band, seed){
+      var y=band.top;
+      list.forEach(function(el,i){
+        var w=el.offsetWidth||160, h=el.offsetHeight||46;
+        var maxX=Math.max(band.x, band.x + band.w - w);
+        var jx=band.x + rnd(seed+i*1.7) * Math.min(48, maxX-band.x);
+        el.style.left=Math.round(Math.min(jx,maxX))+'px';
+        el.style.top=Math.round(y)+'px';
+        el.style.right='auto';
+        y += h + 16;
+      });
+    }
+    function split(list){ var m=Math.ceil(list.length/2); return [list.slice(0,m), list.slice(m)]; }
+    var v=split(vis), w=split(inv);
+    stack(v[0], {x:40,  top:60,  w:430}, 2.1);   // céu esquerda
+    stack(v[1], {x:812, top:60,  w:430}, 7.7);   // céu direita
+    stack(w[0], {x:36,  top:352, w:400}, 3.3);   // água esquerda
+    stack(w[1], {x:846, top:352, w:398}, 9.2);   // água direita
+    icePlaced=true;
+  }
+  if(document.fonts && document.fonts.ready){ document.fonts.ready.then(function(){ icePlaced=false; if(idx===ICE_I) placeIce(); }); }
 
   /* ---- idle hide ---- */
   var idleT; function wake(){ document.body.classList.remove('idle'); clearTimeout(idleT); idleT=setTimeout(function(){ document.body.classList.add('idle'); },3500); }
@@ -841,6 +880,7 @@
   }
 
   function onSlide(i){
+    if(i===ICE_I){ placeIce(); }
     var qid = SLIDE_Q[i];
     if(qid){ publishActive(qid); loadResponses(qid); }
     else { publishActive(0); }
