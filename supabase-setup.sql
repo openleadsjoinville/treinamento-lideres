@@ -15,7 +15,7 @@ create index if not exists responses_q_idx on public.responses (question_id, cre
 -- 2) Estado da apresentação (qual pergunta está ativa no telão)
 create table if not exists public.presentation_state (
   id              int  primary key,
-  active_question int  not null default 0,   -- 0 = aguardando | 1,2,3 = pergunta ativa
+  active_question int  not null default 0,   -- 0 = aguardando | 1..6 = pergunta ativa
   updated_at      timestamptz not null default now()
 );
 insert into public.presentation_state (id, active_question)
