@@ -46,6 +46,10 @@
   .anim.zoom{ transform:scale(.84); }
   .slide.active .anim{ opacity:1; transform:none; }
 
+  /* Tela cheia: sem efeito de transição ao navegar (corte seco) */
+  :fullscreen .slide, :fullscreen .anim{ transition:none !important; }
+  :-webkit-full-screen .slide, :-webkit-full-screen .anim{ transition:none !important; }
+
   .kicker{ font-family:var(--disp); font-weight:800; text-transform:uppercase; letter-spacing:.22em; font-size:18px; }
   .title{ font-family:var(--disp); font-weight:800; text-transform:uppercase; line-height:.92; letter-spacing:-.01em; }
 
