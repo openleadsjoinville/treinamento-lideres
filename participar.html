@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>Participe — O Líder que Deus Vê</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Mulish:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{ --blue:#5373FF; --blue-deep:#2b3aa6; --cream:#EDEDE7; --cream-hi:#F7F7F2; --dark:#2f2f2f; --disp:"Sora",system-ui,sans-serif; --body:"Mulish",system-ui,sans-serif; --logo:url("assets/logo-mark.png"); }
+  *{ box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+  html,body{ min-height:100%; }
+  body{ font-family:var(--body); background:var(--blue); color:var(--cream); display:flex; flex-direction:column; min-height:100vh; min-height:100dvh; padding:26px 22px calc(26px + env(safe-area-inset-bottom)); }
+
+  .top{ display:flex; flex-direction:column; align-items:center; gap:6px; margin-top:6px; }
+  .mark{ width:96px; height:24px; background-color:var(--cream-hi); -webkit-mask:var(--logo) center/contain no-repeat; mask:var(--logo) center/contain no-repeat; }
+  .sub{ font-weight:800; font-style:italic; font-size:8.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--cream-hi); opacity:.9; }
+
+  .main{ flex:1; display:flex; flex-direction:column; justify-content:center; gap:18px; max-width:520px; width:100%; margin:0 auto; }
+
+  .kick{ font-family:var(--disp); font-weight:800; text-transform:uppercase; letter-spacing:.18em; font-size:13px; color:var(--cream); opacity:.85; }
+  .question{ font-family:var(--disp); font-weight:800; font-size:26px; line-height:1.22; color:var(--cream-hi); }
+
+  .field{ display:flex; flex-direction:column; gap:12px; }
+  textarea{ width:100%; min-height:120px; resize:none; border:none; border-radius:18px; padding:16px 18px; font-family:var(--body); font-weight:700; font-size:18px; color:var(--dark); background:#fff; box-shadow:0 14px 34px rgba(0,0,0,.18); outline:none; }
+  textarea::placeholder{ color:#9aa0ad; font-weight:600; }
+  .counter{ align-self:flex-end; font-size:12px; font-weight:800; color:var(--cream); opacity:.7; margin-top:-4px; }
+  button.send{ width:100%; border:none; border-radius:16px; padding:17px; font-family:var(--disp); font-weight:800; font-size:18px; text-transform:uppercase; letter-spacing:.04em; color:var(--blue); background:var(--cream-hi); cursor:pointer; box-shadow:0 12px 30px rgba(0,0,0,.18); transition:transform .12s ease, opacity .2s; }
+  button.send:active{ transform:scale(.98); }
+  button.send:disabled{ opacity:.5; cursor:default; }
+
+  /* states */
+  .state{ display:none; }
+  .state.show{ display:flex; flex-direction:column; gap:18px; }
+
+  .waiting{ align-items:center; text-align:center; gap:14px; }
+  .waiting .big{ font-family:var(--disp); font-weight:800; font-size:24px; color:var(--cream-hi); }
+  .waiting .small{ font-weight:700; font-size:15px; color:var(--cream); opacity:.8; }
+  .spinner{ width:46px; height:46px; border-radius:50%; border:4px solid rgba(255,255,255,.25); border-top-color:var(--cream-hi); animation:spin 1s linear infinite; }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
+  .sent{ align-items:center; text-align:center; gap:16px; }
+  .check{ width:78px; height:78px; border-radius:50%; background:var(--cream-hi); color:var(--blue); display:flex; align-items:center; justify-content:center; font-size:44px; font-weight:900; box-shadow:0 14px 34px rgba(0,0,0,.2); animation:pop .4s cubic-bezier(.2,1.3,.5,1) both; }
+  @keyframes pop{ 0%{ transform:scale(.4); opacity:0;} 100%{ transform:scale(1); opacity:1;} }
+  .sent .big{ font-family:var(--disp); font-weight:800; font-size:24px; color:var(--cream-hi); }
+  .sent .small{ font-weight:700; font-size:15px; color:var(--cream); opacity:.85; }
+  button.again{ margin-top:4px; border:2px solid var(--cream-hi); background:transparent; color:var(--cream-hi); border-radius:16px; padding:14px 22px; font-family:var(--disp); font-weight:800; font-size:15px; text-transform:uppercase; letter-spacing:.04em; cursor:pointer; }
+
+  .foot{ text-align:center; font-size:12px; font-weight:700; color:var(--cream); opacity:.6; margin-top:18px; }
+  .err{ display:none; background:rgba(0,0,0,.22); border-radius:12px; padding:10px 14px; font-weight:700; font-size:13px; color:#ffe; }
+  .err.show{ display:block; }
+</style>
+</head>
+<body>
+  <div class="top"><span class="mark"></span><span class="sub">Treinamento de Líderes</span></div>
+
+  <div class="main">
+    <!-- WAITING -->
+    <div class="state waiting" id="st-wait">
+      <div class="spinner"></div>
+      <div class="big">Tudo pronto! 🙌</div>
+      <div class="small">Aguarde a próxima pergunta aparecer aqui na sua tela.</div>
+    </div>
+
+    <!-- ANSWER -->
+    <div class="state" id="st-answer">
+      <div class="kick" id="q-kick">Pergunta</div>
+      <div class="question" id="q-text">…</div>
+      <div class="field">
+        <textarea id="answer" maxlength="240" placeholder="Digite sua resposta…"></textarea>
+        <div class="counter"><span id="cc">0</span>/240</div>
+        <div class="err" id="err"></div>
+        <button class="send" id="send">Enviar resposta</button>
+      </div>
+    </div>
+
+    <!-- SENT -->
+    <div class="state sent" id="st-sent">
+      <div class="check">✓</div>
+      <div class="big">Resposta enviada!</div>
+      <div class="small">Ela já apareceu no telão. Você pode enviar mais de uma.</div>
+      <button class="again" id="again">Enviar outra resposta</button>
+    </div>
+  </div>
+
+  <div class="foot">Suas respostas aparecem no telão em tempo real.</div>
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+  var cfg = window.APP_CONFIG || {};
+  var QUESTIONS = cfg.QUESTIONS || [];
+  var supa = null;
+  if(cfg.SUPABASE_URL && cfg.SUPABASE_ANON_KEY && window.supabase){
+    try{ supa = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY); }catch(e){}
+  }
+
+  var stWait=document.getElementById('st-wait'), stAns=document.getElementById('st-answer'), stSent=document.getElementById('st-sent');
+  var qKick=document.getElementById('q-kick'), qText=document.getElementById('q-text');
+  var ta=document.getElementById('answer'), cc=document.getElementById('cc'), sendBtn=document.getElementById('send'), errBox=document.getElementById('err'), againBtn=document.getElementById('again');
+
+  var activeQ = 0;     // 0 = aguardando
+  var sentForQ = null; // qid já mostrando "enviado"
+
+  function showState(which){ [stWait,stAns,stSent].forEach(function(s){ s.classList.remove('show'); }); which.classList.add('show'); }
+
+  function renderActive(n){
+    activeQ = n;
+    if(!n || n<1 || n>QUESTIONS.length){ showState(stWait); return; }
+    if(sentForQ === n){ showState(stSent); return; }
+    qKick.textContent = 'Pergunta ' + n + ' de ' + QUESTIONS.length;
+    qText.textContent = QUESTIONS[n-1] || ('Pergunta ' + n);
+    ta.value=''; cc.textContent='0'; errBox.classList.remove('show'); sendBtn.disabled=false; sendBtn.textContent='Enviar resposta';
+    showState(stAns);
+  }
+
+  ta.addEventListener('input', function(){ cc.textContent = ta.value.length; });
+
+  function showErr(msg){ errBox.textContent = msg; errBox.classList.add('show'); }
+
+  sendBtn.addEventListener('click', function(){
+    var text = ta.value.trim();
+    if(!text){ showErr('Escreva algo antes de enviar.'); return; }
+    if(!supa){ showErr('Sem conexão com o servidor.'); return; }
+    sendBtn.disabled=true; sendBtn.textContent='Enviando…'; errBox.classList.remove('show');
+    supa.from('responses').insert({ question_id: activeQ, text: text }).then(function(res){
+      if(res.error){ showErr('Não foi possível enviar. Tente de novo.'); sendBtn.disabled=false; sendBtn.textContent='Enviar resposta'; return; }
+      sentForQ = activeQ; showState(stSent);
+    });
+  });
+
+  againBtn.addEventListener('click', function(){ sentForQ = null; renderActive(activeQ); });
+
+  // initial state fetch
+  function fetchState(){
+    if(!supa){ showState(stWait); return; }
+    supa.from('presentation_state').select('active_question').eq('id',1).single().then(function(res){
+      if(res.error){ showState(stWait); return; }
+      renderActive(res.data ? res.data.active_question : 0);
+    });
+  }
+
+  // realtime follow presenter
+  if(supa){
+    supa.channel('state-follow')
+      .on('postgres_changes', { event:'*', schema:'public', table:'presentation_state' }, function(payload){
+        var n = payload.new ? payload.new.active_question : 0;
+        // se a pergunta mudou, sempre reabrir o formulário (limpa "enviado" da anterior)
+        if(n !== activeQ){ if(n !== sentForQ) sentForQ = null; renderActive(n); }
+      })
+      .subscribe();
+  }
+
+  fetchState();
+  showState(stWait);
+})();
+</script>
+</body>
+</html>
