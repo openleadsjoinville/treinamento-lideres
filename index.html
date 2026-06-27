@@ -116,7 +116,7 @@
   .s-qr .kicker{ color:var(--cream); opacity:.9; margin-bottom:6px; }
   .s-qr .title{ color:var(--cream); font-size:62px; margin-bottom:30px; }
   .s-qr .card{ background:#fff; border-radius:24px; padding:26px; box-shadow:0 24px 60px rgba(0,0,0,.28); display:flex; flex-direction:column; align-items:center; gap:10px; }
-  .s-qr .card canvas{ display:block; width:280px; height:280px; }
+  .s-qr .card #qr-main{ display:block; width:280px; height:280px; }
   .s-qr .card .scan{ font-family:var(--body); font-weight:800; color:var(--dark); font-size:14px; letter-spacing:.02em; }
   .s-qr .steps{ margin-top:26px; font-family:var(--body); font-weight:800; font-size:20px; color:var(--cream); opacity:.95; }
   .s-qr .url{ margin-top:10px; font-family:var(--body); font-weight:700; font-size:15px; color:var(--cream); opacity:.7; letter-spacing:.02em; }
@@ -139,7 +139,7 @@
   @keyframes bump{ 0%{ transform:scale(1);} 40%{ transform:scale(1.16);} 100%{ transform:scale(1);} }
   .bubble.bumped{ animation:bump .4s ease; }
   .s-q .q-corner{ position:absolute; right:34px; bottom:26px; z-index:6; display:flex; align-items:center; gap:12px; background:#fff; border:1.5px solid rgba(83,115,255,.4); border-radius:16px; padding:8px 12px; box-shadow:0 8px 20px rgba(40,60,140,.12); }
-  .s-q .q-corner canvas{ width:60px; height:60px; display:block; }
+  .s-q .q-corner .qr-mini{ width:60px; height:60px; display:block; }
   .s-q .q-corner .ctxt{ text-align:left; font-family:var(--body); }
   .s-q .q-corner .ctxt .a{ font-weight:800; font-size:13px; color:var(--dark); }
   .s-q .q-corner .ctxt .b{ font-weight:700; font-size:11px; color:var(--blue); letter-spacing:.02em; }
@@ -258,7 +258,7 @@
         <div class="kicker">Participe agora</div>
         <h2 class="title">Responda pelo celular</h2>
         <div class="card">
-          <canvas id="qr-main" width="280" height="280"></canvas>
+          <img id="qr-main" alt="QR Code para participar">
           <div class="scan">Aponte a câmera do celular</div>
         </div>
         <div class="steps">Escaneie o QR Code e responda às próximas perguntas</div>
@@ -272,7 +272,7 @@
       <div class="q-head"><div class="kicker">Pergunta 1 de 3</div><div class="q-text"></div></div>
       <div class="cloud"><div class="cloud-empty">As respostas aparecem aqui em tempo real…</div></div>
       <div class="q-live"><span class="dot"></span><span class="lbl">conectando…</span></div>
-      <div class="q-corner"><canvas class="qr-mini" width="60" height="60"></canvas><div class="ctxt"><div class="a">Responda no celular</div><div class="b">escaneie o QR</div></div></div>
+      <div class="q-corner"><img class="qr-mini" alt="QR"><div class="ctxt"><div class="a">Responda no celular</div><div class="b">escaneie o QR</div></div></div>
       <div class="brand"><span class="mark"></span><span class="sub">Treinamento de Líderes</span></div>
     </section>
 
@@ -280,7 +280,7 @@
       <div class="q-head"><div class="kicker">Pergunta 2 de 3</div><div class="q-text"></div></div>
       <div class="cloud"><div class="cloud-empty">As respostas aparecem aqui em tempo real…</div></div>
       <div class="q-live"><span class="dot"></span><span class="lbl">conectando…</span></div>
-      <div class="q-corner"><canvas class="qr-mini" width="60" height="60"></canvas><div class="ctxt"><div class="a">Responda no celular</div><div class="b">escaneie o QR</div></div></div>
+      <div class="q-corner"><img class="qr-mini" alt="QR"><div class="ctxt"><div class="a">Responda no celular</div><div class="b">escaneie o QR</div></div></div>
       <div class="brand"><span class="mark"></span><span class="sub">Treinamento de Líderes</span></div>
     </section>
 
@@ -288,7 +288,7 @@
       <div class="q-head"><div class="kicker">Pergunta 3 de 3</div><div class="q-text"></div></div>
       <div class="cloud"><div class="cloud-empty">As respostas aparecem aqui em tempo real…</div></div>
       <div class="q-live"><span class="dot"></span><span class="lbl">conectando…</span></div>
-      <div class="q-corner"><canvas class="qr-mini" width="60" height="60"></canvas><div class="ctxt"><div class="a">Responda no celular</div><div class="b">escaneie o QR</div></div></div>
+      <div class="q-corner"><img class="qr-mini" alt="QR"><div class="ctxt"><div class="a">Responda no celular</div><div class="b">escaneie o QR</div></div></div>
       <div class="brand"><span class="mark"></span><span class="sub">Treinamento de Líderes</span></div>
     </section>
 
@@ -308,7 +308,7 @@
 <div id="helphint">← → navegar &nbsp;·&nbsp; F tela cheia</div>
 
 <script src="config.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (function(){
@@ -389,12 +389,10 @@
   ==================================================================== */
   var PART_URL = new URL('participar.html', location.href).href;
   document.getElementById('qr-url').textContent = PART_URL;
-  function drawQR(canvas, size){
-    if(!window.QRCode) return;
-    QRCode.toCanvas(canvas, PART_URL, { width:size, margin:1, color:{ dark:'#2f2f2f', light:'#ffffff' } }, function(){});
-  }
-  drawQR(document.getElementById('qr-main'), 280);
-  Array.prototype.slice.call(document.querySelectorAll('.qr-mini')).forEach(function(c){ drawQR(c, 60); });
+  function makeQR(text){ var qr = qrcode(0, 'M'); qr.addData(text); qr.make(); return qr.createDataURL(8, 4); }
+  function setQR(img){ if(typeof qrcode !== 'function' || !img) return; try{ img.src = makeQR(PART_URL); }catch(e){ console.warn('QR falhou', e); } }
+  setQR(document.getElementById('qr-main'));
+  Array.prototype.slice.call(document.querySelectorAll('.qr-mini')).forEach(setQR);
 
   /* ====================================================================
      QUESTIONS + LIVE WORD CLOUD (Supabase realtime)
