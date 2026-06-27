@@ -10,8 +10,8 @@ window.APP_CONFIG = {
     "Em que área você já deveria ser exemplo, mas ainda age como quem precisa ser carregado?",
     "Sua liderança inspira outros adolescentes a levarem Cristo mais a sério?",
     "Quem convive com você diria que sua fé aparece no jeito como você fala, reage e trata pessoas?",
-    "Quando você erra, sua primeira reação é confessar ou se justificar?",
-    "Você tem alguém que pode confrontar você?",
-    "Existe algum pecado que você está protegendo com desculpas?"
+    "Uma área em que preciso crescer",
+    "Uma verdade bíblica que preciso lembrar",
+    "Um passo prático nesta semana"
   ]
 };
